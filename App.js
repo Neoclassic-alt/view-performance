@@ -1,21 +1,75 @@
-import { StatusBar } from 'expo-status-bar';
+import 'react-native-gesture-handler';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { StyleSheet } from 'react-native';
+import { AntDesign } from '@expo/vector-icons'; 
+
+import { ViewTable } from './screens/view_table';
+import { EditTable } from './screens/edit_table';
+
+import marks from './stores/marks'
+import labs from './stores/labs'
+import { colors } from './components/colors';
+
+const Tab = createBottomTabNavigator();
+
+/* найти нормальные иконки для навигации
+// для истории
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+<MaterialCommunityIcons name="history" size={24} color="black" />
+// для статистики
+<AntDesign name="areachart" size={24} color="black" />
+// для оценок / марок
+import { Ionicons } from '@expo/vector-icons';
+<Ionicons name="bookmarks-outline" size={24} color="black" />
+*/
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Tab.Navigator 
+      initialRouteName="EditTable"
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          if (route.name == "EditTable"){
+            return <AntDesign name="edit" size={size} color={color} />;
+          }
+          if (route.name == "ViewTable"){
+            return <AntDesign name="table" size={size} color={color} />
+          }
+        },
+      })}
+      tabBarOptions={{
+        activeTintColor: colors.blue,
+        inactiveTintColor: 'gray',
+      }}
+      >
+        <Tab.Screen 
+          name="EditTable" 
+          component={EditTable} 
+          initialParams={{ marks, labs }}
+          options={{title: 'Редактировать'}}
+        />
+        <Tab.Screen 
+          name="ViewTable" 
+          component={ViewTable} 
+          initialParams={{ marks, labs }}
+          options={{title: 'Просмотр'}}
+        />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flex: 1,
+    paddingVertical: 20,
+    paddingHorizontal: 20
+  },
+  text: {
+    color: '#fff'
   },
 });

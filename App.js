@@ -10,6 +10,7 @@ import { EditTable } from './screens/edit_table';
 
 import marks from './stores/marks'
 import labs from './stores/labs'
+import historyStore from './stores/history'
 import { colors } from './components/colors';
 
 const Tab = createBottomTabNavigator();
@@ -48,7 +49,7 @@ export default function App() {
         <Tab.Screen 
           name="EditTable" 
           component={EditTable} 
-          initialParams={{ marks, labs }}
+          initialParams={{ marks, labs, historyStore }}
           options={{title: 'Редактировать'}}
         />
         <Tab.Screen 

@@ -105,15 +105,19 @@ class Labs {
     this.recoveryState = "pending"
     AsyncStorage.getItem('labs').then(result => {
     if (result !== null){
-      this.state = JSON.parse(result)
+      this.setState(JSON.parse(result))
     }
     })
     AsyncStorage.getItem('selectedSemestr').then(result => {
       if (result !== null){
-        this.selectedSemestr = Number(result)
+        this.setSemestr(Number(result), false)
       }
       this.recoveryState = "done"
     })
+  }
+
+  setState(result){
+    this.state = result
   }
 
   clearStorage(){
@@ -121,9 +125,11 @@ class Labs {
     AsyncStorage.removeItem('selectedSemestr')
   }
 
-  setSemestr(semestr){
+  setSemestr(semestr, set = true){
     this.selectedSemestr = semestr
-    AsyncStorage.setItem('selectedSemestr', String(semestr))
+    if (set){
+      AsyncStorage.setItem('selectedSemestr', String(semestr))
+    }
   }
 
   saveLabsInStorage(){

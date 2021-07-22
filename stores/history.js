@@ -35,6 +35,7 @@ class History {
            {
                 id: "525453453",
                 action: "editLab",
+                subjectID: "5252-523523",
                 changes: {
                     position: 2,
                     from: {
@@ -52,6 +53,7 @@ class History {
            {
                 id: "52525252",
                 action: "editSubject",
+                subjectID: "5252-523523",
                 changes: {
                     position: null,
                     from: {
@@ -69,7 +71,9 @@ class History {
        ],
        "14.06.2021": [
             {
+                id: "235432-51523",
                 action: "editLab",
+                subjectID: "5252-523523",
                 changes: {
                     position: 2,
                     from: {

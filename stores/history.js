@@ -31,86 +31,98 @@ class History {
     }
     */
    state = {
-       "13.06.2021": [
+       "13 июня 2021": [
            {
                 id: "525453453",
                 action: "editLab",
-                subjectID: "5252-523523",
+                subjectID: "8bb63c15-0566-415e-b483-03abfd968c4f",
                 changes: {
                     position: 2,
                     from: {
                         markID: "1",
-                        title: null,
-                        countOfLabs: null
                     },
                     to: {
                         markID: "2",
-                        title: null,
-                        countOfLabs: null
                     }
                 }
            },
            {
                 id: "52525252",
                 action: "editSubject",
-                subjectID: "5252-523523",
+                subjectID: "3177af4f-3f41-4c4c-a30e-b4bce62bc42d",
                 changes: {
-                    position: null,
                     from: {
-                        markID: null, // state["14.06.2021"][0].changes.from.title
                         title: "Теория автоматов и формальных языков",
                         countOfLabs: null
                     },
                     to: {
-                        markID: null,
                         title: "Теория автоматов",
                         countOfLabs: null
                     }
                 }
             },
        ],
-       "14.06.2021": [
+       "14 июня 2021": [
             {
                 id: "235432-51523",
                 action: "editLab",
-                subjectID: "5252-523523",
+                subjectID: "3177af4f-3f41-4c4c-a30e-b4bce62bc42d",
                 changes: {
                     position: 2,
                     from: {
                         markID: "1",
-                        title: null,
-                        countOfLabs: null
                     },
                     to: {
                         markID: "2",
-                        title: null,
-                        countOfLabs: null
                     }
                 }
-        },
+            },
+            {
+                id: "avbasR6",
+                action: "addSubject",
+                newSubject: {
+                    title: "Lalalala",
+                }
+            },
        ]
    }
 
    constructor(){
        makeAutoObservable(this)
+       this.recoverFromStorage()
    }
 
-   addHistory(data, date = (new Date()).toLocaleDateString("ru")){
-       if (this.state[date]){
-           this.state[date].push(data)
-       } else {
-           this.state[date] = data
+   addHistory(action, data, date){
+       const currentData = {
+           id: uuidv4(),
+           action,
+           ...data
        }
+       if (!date){
+           const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"]
+           date = new Date()
+           date = `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`
+       }
+       if (this.state[date]){
+           this.state[date].push(currentData)
+       } else {
+           this.state[date] = [currentData]
+       }
+       //saveHistoryInStorage()
    }
 
    setHistory(state){
        this.state = state
    }
 
+   saveHistoryInStorage(){
+       AsyncStorage.setItem('history', JSON.stringify(history.state))
+   }
+
    recoverFromStorage(){
        AsyncStorage.getItem('history').then(result => {
            if (result != null){
-                this.setHistory(result)
+                this.setHistory(JSON.parse(result))
            }
        })
    }

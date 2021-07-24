@@ -12,7 +12,7 @@ export function EditSubjectForm({ route, navigation }){
       numbers.push(i)
   }
 
-  let {labs, subjectID} = route.params
+  const {labs, subjectID, historyStore} = route.params
 
   useEffect(() => {
     if (subjectID){
@@ -48,6 +48,11 @@ export function EditSubjectForm({ route, navigation }){
       {!subjectID && <TouchableOpacity // если цель - добавление предмета
         onPress={() => {
           labs.addSubject(title, numberOfLabs)
+          historyStore.addHistory("addSubject", {
+            newSubject: {
+              title
+            }
+          })
           navigation.navigate("EditTableView")
         }}
         style={styles.mainButton}
@@ -56,7 +61,21 @@ export function EditSubjectForm({ route, navigation }){
       </TouchableOpacity>}
       {subjectID && <TouchableOpacity // если цель - изменение предмета
         onPress={() => {
+          const {title: prevTitle, countOfLabs: prevCountOfLabs} = labs.getSubject(subjectID)
           labs.editSubject(subjectID, title, numberOfLabs)
+          historyStore.addHistory("editSubject", {
+            subjectID,
+            changes: {
+              from: {
+                title: prevTitle,
+                countOfLabs: prevCountOfLabs
+              },
+              to: {
+                title,
+                countOfLabs: prevCountOfLabs != numberOfLabs ? numberOfLabs : null
+              }
+            }
+          })
           navigation.navigate("EditTableView")
         }}
         style={styles.mainButton}

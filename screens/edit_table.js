@@ -9,20 +9,19 @@ import { Modal, ModalButton, ModalContent, ModalFooter, ModalPortal, ModalTitle 
 import { colors } from '../components/colors';
 import LegendModal from '../components/modals/legend_modal';
 import { Subject } from '../components/subject';
-import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { EditSubjectForm } from './edit_subject_form';
 
 const Stack = createStackNavigator()
 
-export function EditTable({route}){
-    const {marks, labs} = route.params
+export default function EditTable({route}){
+    const {marks, labs, historyStore} = route.params
     return (
         <Stack.Navigator>
             <Stack.Screen
                 name="EditTableView"
                 component={EditTableView}
-                initialParams={{ marks, labs }}
+                initialParams={{ marks, labs, historyStore }}
                 options={{title: 'Редактировать лабораторные'}}
             />
             <Stack.Screen
@@ -43,7 +42,7 @@ export const EditTableView = observer(({ route, navigation }) => {
     const [deleteModalVisible, setDeleteModalVisible] = useState(false)
     const [currentSubjectID, setCurrentSubjectID] = useState(null)
 
-    const {marks, labs} = route.params
+    const {marks, labs, historyStore} = route.params
 
     numbers = []
     for(let i = 1; i <= 12; i++){
@@ -52,8 +51,21 @@ export const EditTableView = observer(({ route, navigation }) => {
 
     function markClicked(markID){
         setModalVisible(false)
+        const prevMarkID = labs.getSubject(currentSubjectID).marks[currentIndex]
         labs.addMarkToLab(currentSubjectID, currentIndex, markID)
         labs.setChanged()
+        historyStore.addHistory("editLab", {
+            subjectID: currentSubjectID,
+            changes: {
+                position: currentIndex + 1,
+                from: {
+                    markID: prevMarkID
+                },
+                to: {
+                    markID
+                }
+            }
+        })
     }
 
     function setMarkInSubject(id, index){
@@ -113,6 +125,11 @@ export const EditTableView = observer(({ route, navigation }) => {
                             text="Да"
                             onPress={() => {
                                 labs.removeSubject(currentSubjectID)
+                                historyStore.addHistory("deleteSubject", {
+                                    deletedSubject: {
+                                        title: labs.getSubject(currentSubjectID).title
+                                    }
+                                })
                                 setDeleteModalVisible(false)
                             }}
                             key="button-1"
@@ -160,7 +177,7 @@ export const EditTableView = observer(({ route, navigation }) => {
                         labsState={item.marks}
                         marks={marks}
                         key={`Semestr ${labs.selectedSemestr}, Subject ${index}`}
-                        editSubject={() => navigation.navigate('EditSubjectForm', {labs, subjectID: item.id})}
+                        editSubject={() => navigation.navigate('EditSubjectForm', {labs, historyStore, subjectID: item.id})}
                         removeSubject={() => {
                             setDeleteModalVisible(true)
                             setCurrentSubjectID(item.id)
@@ -170,7 +187,7 @@ export const EditTableView = observer(({ route, navigation }) => {
                 )}
             </ScrollView>
             <TouchableOpacity
-                onPress={() => navigation.navigate('EditSubjectForm', { labs })}
+                onPress={() => navigation.navigate('EditSubjectForm', { labs, historyStore })}
                 style={styles.buttonAddSubject}
             >
                 <Text style={styles.buttonAddSubjectText}><Ionicons name="add" size={18} color={colors.blue} /> Создать новый предмет</Text>

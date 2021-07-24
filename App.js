@@ -3,22 +3,22 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StyleSheet } from 'react-native';
-import { AntDesign } from '@expo/vector-icons'; 
+import { AntDesign } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-import { ViewTable } from './screens/view_table';
-import { EditTable } from './screens/edit_table';
+import ViewTable from './screens/view_table';
+import EditTable from './screens/edit_table';
+import History from './screens/history';
 
 import marks from './stores/marks'
 import labs from './stores/labs'
+import historyStore from './stores/history'
 import { colors } from './components/colors';
 
 const Tab = createBottomTabNavigator();
 
 /* найти нормальные иконки для навигации
-// для истории
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-<MaterialCommunityIcons name="history" size={24} color="black" />
-// для статистики
+// для статистики и графиков
 <AntDesign name="areachart" size={24} color="black" />
 // для оценок / марок
 import { Ionicons } from '@expo/vector-icons';
@@ -38,6 +38,9 @@ export default function App() {
           if (route.name == "ViewTable"){
             return <AntDesign name="table" size={size} color={color} />
           }
+          if (route.name == "History"){
+            return <MaterialCommunityIcons name="history" size={size} color={color} /> 
+          }
         },
       })}
       tabBarOptions={{
@@ -46,9 +49,9 @@ export default function App() {
       }}
       >
         <Tab.Screen 
-          name="EditTable" 
+          name="EditTable"
           component={EditTable} 
-          initialParams={{ marks, labs }}
+          initialParams={{ marks, labs, historyStore }}
           options={{title: 'Редактировать'}}
         />
         <Tab.Screen 
@@ -56,6 +59,12 @@ export default function App() {
           component={ViewTable} 
           initialParams={{ marks, labs }}
           options={{title: 'Просмотр'}}
+        />
+        <Tab.Screen 
+          name="History" 
+          component={History} 
+          initialParams={{ marks, labs, historyStore }}
+          options={{title: 'История'}}
         />
       </Tab.Navigator>
     </NavigationContainer>

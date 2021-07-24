@@ -5,47 +5,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 // хранилище лабораторных
 class Labs {
-  // Модель данных:
-  /*semestr = [ 
-    [ // 1-ый семестр
-      {
-        id: 'gw4gw4g4wgws44yh',
-        title: "Высшая математика",
-        marks: ["Ready", "Ready", "Ready"],
-      },
-      {
-        id: '43y35bcvchfh',
-        title: "История Древнего Рима",
-        marks: ["Ready", "Ready", "Ready"],
-      },
-      {
-        id: '2352546bntz',
-        title: "Полиция",
-        marks: ["Ready", "Ready", "Ready"],
-      }
-    ],
-    [ // 2-ый семестр
-      {
-        id: '5252xxzfhhdfhf',
-        title: "Высшая математика",
-        marks: ["Ready", "In Progress", "Didn't start"],
-      },
-      {
-        id: 'nnfgdgbbbgergrg',
-        title: "История Древнего Рима",
-        marks: ["Ready", "Didn't start", "Didn't start"],
-      },
-      {
-        id: 'vcfbvbcnbnghhg',
-        title: "Полиция",
-        marks: ["In Progress", "In Progress", "Didn't start"],
-      }
-    ],
-    // 3-ый семестр
-    [], 
-    // ...и так далее. 
-  ]
-  ],*/
   state = [
     [], [], [], [], [], [], [], [], [], [], [], []
   ]
@@ -61,7 +20,7 @@ class Labs {
     this.recoverFromStorage()
   }
 
-  addMarkToLab(ID, index, markID){
+  addMarkToLab(ID, index, markID){ // возвращает предыдущее состояние лабораторной
     this.getSubject(ID).marks[index] = markID
     this.saveLabsInStorage()
   }
@@ -105,15 +64,19 @@ class Labs {
     this.recoveryState = "pending"
     AsyncStorage.getItem('labs').then(result => {
     if (result !== null){
-      this.state = JSON.parse(result)
+      this.setState(JSON.parse(result))
     }
     })
     AsyncStorage.getItem('selectedSemestr').then(result => {
       if (result !== null){
-        this.selectedSemestr = Number(result)
+        this.setSemestr(Number(result), false)
       }
       this.recoveryState = "done"
     })
+  }
+
+  setState(result){
+    this.state = result
   }
 
   clearStorage(){
@@ -121,9 +84,11 @@ class Labs {
     AsyncStorage.removeItem('selectedSemestr')
   }
 
-  setSemestr(semestr){
+  setSemestr(semestr, set = true){
     this.selectedSemestr = semestr
-    AsyncStorage.setItem('selectedSemestr', String(semestr))
+    if (set){
+      AsyncStorage.setItem('selectedSemestr', String(semestr))
+    }
   }
 
   saveLabsInStorage(){

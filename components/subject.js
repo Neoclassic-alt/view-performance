@@ -16,6 +16,7 @@ export const Subject = observer(({title, onMarkClicked, marks, labsState, id,
         <View style={styles.subject}>
             <View style={styles.menu}>
                 <Text style={styles.text}>{title}</Text>
+                <Text></Text>
                 <Pressable
                     onPress={() => null}
                     style={({pressed}) => ({

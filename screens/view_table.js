@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from "react";
+import countBy from 'lodash.countby';
 import { observer } from "mobx-react-lite";
-import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
-import { Picker } from '@react-native-picker/picker';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-get-random-values'
-import { v4 as uuidv4 } from 'uuid';
-import { PieChart } from 'react-native-svg-charts'
-import countBy from 'lodash.countby'
-import { Text as SvgText } from 'react-native-svg'
+import React, { useEffect, useState } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import 'react-native-get-random-values';
+import { Text as SvgText } from 'react-native-svg';
+import { PieChart } from 'react-native-svg-charts';
 import TableRow from "../components/table_row";
 
 numbers = []
@@ -15,7 +12,7 @@ for(let i = 1; i <= 12; i++){
     numbers.push(i)
 }
 
-export const ViewTable = observer(({ route, navigation }) => {
+export default ViewTable = observer(({ route, navigation }) => {
     const {labs, marks} = route.params
     const [subjects, setSubjects] = useState()
     const [pieData, setPieData] = useState(labs.getVisibleSubjects())

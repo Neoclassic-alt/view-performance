@@ -5,87 +5,67 @@ import { v4 as uuidv4 } from 'uuid';
 
 class History {
     /* Модель данных:
-    state = {
-        // * означает возможность присвоения null
-        "13.06.2021": [ // дата внесения изменений // string
-            {
-                action: "editLab" // действия: "editLab" (редактирование лабораторной работы),
-                // "editSubject" (редактирование предмета),
-                // "addSubject" (добавление предмета),
-                // "removeSubject" (удаление предмета) // string
-                changes: { // какие изменения были внесены
-                    position: null // number*
-                    from: {
-                        markID: "52545345" // string*
-                        title: "ПрПРРПР" // string*
-                        countOfLabs: 5 // number*
-                    }
-                    to: {
-                        markID: "364363" // string*
-                        title: "аахш" // string*
-                        countOfLabs: 7 // number*
-                    }
-                }
-            }
-        ]
-    }
-    */
-   state = {
-       "13 июня 2021": [
-           {
+    state = [
+        {
+            date: "13 июня 2021",
+            actions: [{
                 id: "525453453",
                 action: "editLab",
                 subjectID: "8bb63c15-0566-415e-b483-03abfd968c4f",
                 changes: {
                     position: 2,
-                    from: {
-                        markID: "1",
-                    },
-                    to: {
-                        markID: "2",
-                    }
+                    fromMarkID: "1", // state[0].actions[0].changes.fromMarkID
+                    toMarkID: "2",
                 }
-           },
-           {
+                },
+                {
                 id: "52525252",
                 action: "editSubject",
                 subjectID: "3177af4f-3f41-4c4c-a30e-b4bce62bc42d",
                 changes: {
                     from: {
                         title: "Теория автоматов и формальных языков",
-                        countOfLabs: null
+                        countOfLabs: 9 // state[0].actions[0].changes.from.countOfLabs
                     },
                     to: {
                         title: "Теория автоматов",
-                        countOfLabs: null
+                        countOfLabs: 9
                     }
                 }
-            },
-       ],
-       "14 июня 2021": [
+            }]
+        },
+    ],
+    [
+        date: "14 июня 2021",
+        actions: [
             {
                 id: "235432-51523",
                 action: "editLab",
                 subjectID: "3177af4f-3f41-4c4c-a30e-b4bce62bc42d",
                 changes: {
                     position: 2,
-                    from: {
-                        markID: "1",
-                    },
-                    to: {
-                        markID: "2",
-                    }
+                    fromMarkID: "1",
+                    toMarkID: "2",
                 }
             },
             {
                 id: "avbasR6",
                 action: "addSubject",
+                subjectID: "3177af4f-3f41-4c4c-a30e-b4bce62bc42d",
                 newSubject: {
                     title: "Lalalala",
+                    countOfLabs: 6
                 }
             },
-       ]
-   }
+            {
+                id: "avbasR6",
+                action: "deleteSubject",
+                subjectID: "3177af4f-3f41-4c4c-a30e-b4bce62bc42d",
+                deletedSubjectTitle: "Lalalala"
+            }
+        ],
+    ]*/
+    state = []
 
    constructor(){
        makeAutoObservable(this)
@@ -103,12 +83,26 @@ class History {
            date = new Date()
            date = `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`
        }
-       if (this.state[date]){
+       /*if (this.state[date]){
            this.state[date].push(currentData)
        } else {
            this.state[date] = [currentData]
+       }*/
+       if (this.state.some(day => day.date == date)){
+        this.state.find(day => day.date == date).actions.push(currentData)
+       } else {
+        this.state.push({
+            date, 
+            actions: [currentData]
+        })  
        }
-       //saveHistoryInStorage()
+
+       this.saveHistoryInStorage()
+   }
+
+   clearHistory() {
+       this.state = []
+       this.saveHistoryInStorage()
    }
 
    setHistory(state){
@@ -116,7 +110,7 @@ class History {
    }
 
    saveHistoryInStorage(){
-       AsyncStorage.setItem('history', JSON.stringify(history.state))
+       AsyncStorage.setItem('history', JSON.stringify(this.state))
    }
 
    recoverFromStorage(){

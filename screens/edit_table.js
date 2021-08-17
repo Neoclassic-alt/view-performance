@@ -1,119 +1,22 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Picker } from '@react-native-picker/picker';
 import { StatusBar } from 'expo-status-bar';
-import { toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Modal, ModalButton, ModalContent, ModalFooter, ModalPortal, ModalTitle } from 'react-native-modals';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import ModalDropdown from 'react-native-modal-dropdown';
+import { Modal, ModalButton, ModalContent, ModalFooter, ModalPortal } from 'react-native-modals';
 import { colors } from '../components/colors';
-import LegendModal from '../components/modals/legend_modal';
 import { Subject } from '../components/subject';
-import { createStackNavigator } from '@react-navigation/stack';
-import { EditSubjectForm } from './edit_subject_form';
+import labs from './../stores/labs'
+import historyStore from './../stores/history'
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-const Stack = createStackNavigator()
-
-export default function EditTable({route}){
-    const {marks, labs, historyStore} = route.params
-    return (
-        <Stack.Navigator>
-            <Stack.Screen
-                name="EditTableView"
-                component={EditTableView}
-                initialParams={{ marks, labs, historyStore }}
-                options={{title: 'Редактировать лабораторные'}}
-            />
-            <Stack.Screen
-                name="EditSubjectForm"
-                component={EditSubjectForm}
-                initialParams={{ labs }}
-                options={{title: 'Добавить предмет'}}
-            />
-        </Stack.Navigator>
-    )
-}
-
-export const EditTableView = observer(({ route, navigation }) => {
-    const [modalVisible, setModalVisible] = useState(false)
-    const [legendVisible, setLegendVisible] = useState(false)
-    const [currentIndex, setCurrentIndex] = useState()
-    const [currentMarkID, setCurrentMarkID] = useState()
+export default EditTable = observer(({ route, navigation }) => {
     const [deleteModalVisible, setDeleteModalVisible] = useState(false)
     const [currentSubjectID, setCurrentSubjectID] = useState(null)
 
-    const {marks, labs, historyStore} = route.params
-
-    numbers = []
-    for(let i = 1; i <= 12; i++){
-        numbers.push(i)
-    }
-
-    function markClicked(markID){
-        setModalVisible(false)
-        const prevMarkID = labs.getSubject(currentSubjectID).marks[currentIndex]
-        labs.addMarkToLab(currentSubjectID, currentIndex, markID)
-        labs.setChanged()
-        historyStore.addHistory("editLab", {
-            subjectID: currentSubjectID,
-            changes: {
-                position: currentIndex + 1,
-                from: {
-                    markID: prevMarkID
-                },
-                to: {
-                    markID
-                }
-            }
-        })
-    }
-
-    function setMarkInSubject(id, index){
-        setModalVisible(true)
-        setCurrentSubjectID(id)
-        setCurrentIndex(index)
-        setCurrentMarkID(labs.getSubject(id).marks[index] || "2")
-    }
-
     return (
         <View style={styles.container}>
-            <Modal // модальное окно меток
-                visible={modalVisible}
-                onTouchOutside={() => {
-                    setModalVisible(false)
-                }}
-                modalTitle={
-                    <ModalTitle
-                      title="Поставить метку"
-                      align="left"
-                    />
-                }
-                footer={
-                    <ModalFooter>
-                        <ModalButton
-                            text="Закрыть"
-                            bordered
-                            onPress={() => {
-                                setModalVisible(false)
-                            }}
-                            key="button-1"
-                        />
-                    </ModalFooter>
-                }
-            >
-                <ModalContent style={{marginTop: 20}}>
-                    {marks.state.filter(item => item.id != currentMarkID).map((item) => (
-                        <Pressable
-                            onPress={() => markClicked(item.id)}
-                            style={({pressed}) => [{backgroundColor: pressed ? 'brown' : 'white'}]}
-                            key={item.id}
-                        >
-                            <Text style={styles.markText}>{item.title}</Text>
-                        </Pressable>
-                        )
-                    )}
-                </ModalContent>
-            </Modal>
+            <SafeAreaView>
             <Modal // модальное окно подтверждения удаления
                 visible={deleteModalVisible}
                 onTouchOutside={() => {
@@ -126,18 +29,17 @@ export const EditTableView = observer(({ route, navigation }) => {
                             onPress={() => {
                                 labs.removeSubject(currentSubjectID)
                                 historyStore.addHistory("deleteSubject", {
-                                    deletedSubject: {
-                                        title: labs.getSubject(currentSubjectID).title
-                                    }
+                                    subjectID: currentSubjectID,
+                                    deletedSubjectTitle: labs.getSubject(currentSubjectID).title
                                 })
                                 setDeleteModalVisible(false)
                             }}
-                            key="button-1"
+                            key="button-yes"
                         />
                         <ModalButton
                             text="Нет"
                             onPress={() => setDeleteModalVisible(false)}
-                            key="button-2"
+                            key="button-no"
                         />
                     </ModalFooter>
                 }
@@ -146,54 +48,87 @@ export const EditTableView = observer(({ route, navigation }) => {
                     <Text>Вы точно хотите удалить предмет?</Text>
                 </ModalContent>
             </Modal>
-            <Picker
-                style={styles.picker}
-                selectedValue={labs.selectedSemestr}
-                onValueChange={(item) => {
-                        labs.setSemestr(item)
-                    }
-                }
-            >
-                {numbers.map((index) => 
-                    <Picker.Item value={index} key={"semestr" + index} label={index + " семестр "} />
-                )}
-            </Picker>
-            <TouchableOpacity
-                onPress={() => setLegendVisible(true)}
-                style={styles.legendShowButton}
-            >
-                <Text style={styles.legendShowText}>Отобразить легенду</Text>
-            </TouchableOpacity>
-            <LegendModal
-                legendVisible={legendVisible}
-                setLegendVisible={setLegendVisible}
-                marks={toJS(marks.state)} // https://mobx.js.org/react-integration.html#dont-pass-observables-into-components-that-arent-observer
-            />
-            <ScrollView>
-                {labs.getVisibleSubjects().map((item, index) =>
-                    <Subject
-                        title={item.title}
-                        onMarkClicked={setMarkInSubject}
-                        labsState={item.marks}
-                        marks={marks}
-                        key={`Semestr ${labs.selectedSemestr}, Subject ${index}`}
-                        editSubject={() => navigation.navigate('EditSubjectForm', {labs, historyStore, subjectID: item.id})}
-                        removeSubject={() => {
-                            setDeleteModalVisible(true)
-                            setCurrentSubjectID(item.id)
-                        }}
-                        id={item.id}
-                    />
-                )}
-            </ScrollView>
+            <View style={styles.header}>
+                {labs.selectedSemestr && <ModalDropdown 
+                    options={Array(12).fill().map((_, index) => index + 1 + " семестр")}
+                    dropdownTextStyle={{fontSize: 14}}
+                    adjustFrame={style => {
+                        style.width = 100,
+                        style.height = 200
+                        return style
+                    }}
+                    defaultValue={labs.selectedSemestr + " семестр      ▼"}
+                    onSelect={index => {
+                        labs.setSemestr(index + 1)
+                    }}
+                    renderButtonText={text => text + "      ▼"}
+                    style={styles.semestrDropDown}
+                ></ModalDropdown>}
+                <TouchableOpacity 
+                    style={[styles.button, styles.buttonGray]}
+                    onPress={() => navigation.navigate('History')}
+                >
+                    <Text>История изменений</Text>
+                </TouchableOpacity>
+            </View>
+            {labs.getVisibleSubjects().length ? <ScrollView style={{marginBottom: 20}}>
+            { // сначала избранные
+            labs.getVisibleSubjects().filter(lab => lab.favorite && !lab.marks.every(value => value == 1)).map(item =>
+                <Subject
+                    title={item.title}
+                    labsState={item.marks}
+                    key={item.id}
+                    editSubject={() => navigation.navigate('EditSubjectForm', {labs, historyStore, subjectID: item.id})}
+                    removeSubject={() => {
+                        setDeleteModalVisible(true)
+                        setCurrentSubjectID(item.id)
+                    }}
+                    favorite={true}
+                    fulfilled={false}
+                    id={item.id}
+                />
+            )}
+            {labs.getVisibleSubjects().filter(lab => !lab.favorite && !lab.marks.every(value => value == 1)).map(item =>
+                <Subject
+                    title={item.title}
+                    labsState={item.marks}
+                    key={item.id}
+                    editSubject={() => navigation.navigate('EditSubjectForm', {labs, historyStore, subjectID: item.id})}
+                    removeSubject={() => {
+                        setDeleteModalVisible(true)
+                        setCurrentSubjectID(item.id)
+                    }}
+                    favorite={false}
+                    fulfilled={false}
+                    id={item.id}
+                />
+            )}
+            {labs.getVisibleSubjects().some(lab => lab.marks.every(value => value == 1)) && <Text style={styles.fulfilledTitle}>Выполненные предметы</Text>}
+            {labs.getVisibleSubjects().filter(lab => lab.marks.every(value => value == 1)).map(item =>
+                <Subject
+                    title={item.title}
+                    labsState={item.marks}
+                    key={item.id}
+                    editSubject={() => navigation.navigate('EditSubjectForm', {labs, historyStore, subjectID: item.id})}
+                    removeSubject={() => {
+                        setDeleteModalVisible(true)
+                        setCurrentSubjectID(item.id)
+                    }}
+                    favorite={false}
+                    fulfilled={true}
+                    id={item.id}
+                />
+            )}
+            </ScrollView> : <Text></Text>}
             <TouchableOpacity
                 onPress={() => navigation.navigate('EditSubjectForm', { labs, historyStore })}
                 style={styles.buttonAddSubject}
             >
-                <Text style={styles.buttonAddSubjectText}><Ionicons name="add" size={18} color={colors.blue} /> Создать новый предмет</Text>
+                <Text style={styles.buttonAddSubjectText}>Добавить новый предмет</Text>
             </TouchableOpacity>
-            <StatusBar hidden />
+            <StatusBar />
             <ModalPortal />
+            </SafeAreaView>
         </View>
     );
 })
@@ -205,31 +140,30 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 20
     },
-    picker: {
-        color: colors.blue,
-        width: 170,
-        right: 8
+    header: {
+        paddingVertical: 6,
+        flexDirection: "row",
+        justifyContent: "space-between"
+    },
+    semestrDropDown: {
+        borderWidth: 1,
+        borderColor: colors.lightGray,
+        alignSelf: 'center',
+        padding: 8
+    },
+    button: {
+        borderWidth: 1,
+        paddingHorizontal: 10,
+        padding: 7
+    },
+    buttonGray: {
+        borderColor: colors.lightGray
     },
     wrapperCustom: {
         borderRadius: 2,
         padding: 4
     },
-    markText: {
-        fontSize: 18,
-        marginVertical: 10
-    },
-    legendShowText: {
-        color: colors.red,
-        paddingVertical: 5,
-        fontSize: 18
-    },
-    legendShowButton: {
-        borderWidth: 0,
-        borderColor: colors.red,
-        width: 200,
-    },
     buttonAddSubject: {
-        borderWidth: 1,
         borderColor: colors.blue,
         borderWidth: 1
     },
@@ -238,5 +172,10 @@ const styles = StyleSheet.create({
         fontSize: 18,
         textAlign: 'center',
         paddingVertical: 10
+    },
+    fulfilledTitle: {
+        fontSize: 20,
+        marginTop: 15,
+        marginBottom: 5
     }
 })

@@ -2,8 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { View, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
 import { colors } from '../components/colors'
+import labs from './../stores/labs'
+import historyStore from './../stores/history'
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export function EditSubjectForm({ route, navigation }){
+export default function EditSubjectForm({ route, navigation }){
   const [title, setTitle] = useState()
   const [numberOfLabs, setNumberOfLabs] = useState()
 
@@ -12,7 +15,7 @@ export function EditSubjectForm({ route, navigation }){
       numbers.push(i)
   }
 
-  const {labs, subjectID, historyStore} = route.params
+  const {subjectID} = route.params
 
   useEffect(() => {
     if (subjectID){
@@ -25,6 +28,7 @@ export function EditSubjectForm({ route, navigation }){
 
   return (
     <View style={styles.container}>
+      <SafeAreaView>
       <Text style={styles.formLabel}>Название предмета:</Text>
       <TextInput
         onChangeText={setTitle}
@@ -45,15 +49,17 @@ export function EditSubjectForm({ route, navigation }){
         )}
         </Picker>
       </View>
+      <View style={styles.buttonsRow}>
       {!subjectID && <TouchableOpacity // если цель - добавление предмета
         onPress={() => {
           labs.addSubject(title, numberOfLabs)
           historyStore.addHistory("addSubject", {
             newSubject: {
-              title
+              title,
+              countOfLabs: numberOfLabs
             }
           })
-          navigation.navigate("EditTableView")
+          navigation.navigate("EditTable")
         }}
         style={styles.mainButton}
       >
@@ -61,27 +67,32 @@ export function EditSubjectForm({ route, navigation }){
       </TouchableOpacity>}
       {subjectID && <TouchableOpacity // если цель - изменение предмета
         onPress={() => {
-          const {title: prevTitle, countOfLabs: prevCountOfLabs} = labs.getSubject(subjectID)
+          const {title: prevTitle, marks} = labs.getSubject(subjectID)
           labs.editSubject(subjectID, title, numberOfLabs)
           historyStore.addHistory("editSubject", {
             subjectID,
             changes: {
               from: {
                 title: prevTitle,
-                countOfLabs: prevCountOfLabs
+                countOfLabs: marks.length
               },
               to: {
                 title,
-                countOfLabs: prevCountOfLabs != numberOfLabs ? numberOfLabs : null
+                countOfLabs: numberOfLabs
               }
             }
           })
-          navigation.navigate("EditTableView")
+          navigation.navigate("EditTable")
         }}
         style={styles.mainButton}
       >
         <Text style={styles.mainButtonText}>Изменить предмет</Text>
       </TouchableOpacity>}
+      <TouchableOpacity style={styles.cancelButton} onPress={() => navigation.navigate('EditTable')}>
+        <Text style={styles.cancelButtonText}>Отмена</Text>
+      </TouchableOpacity>
+      </View>
+      </SafeAreaView>
     </View>
   )
 }
@@ -102,20 +113,39 @@ const styles = StyleSheet.create({
   mainButton: {
     backgroundColor: colors.blue,
     borderRadius: 5,
-    paddingVertical: 10
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginRight: 10,
+    flex: 3
   },
   mainButtonText: {
     fontWeight: "700",
     color: "white",
     textAlign: 'center',
-    fontSize: 20,
+    fontSize: 16,
   },
   textInput: {
     borderWidth: 1,
-    marginBottom: 8
+    marginBottom: 8,
+    paddingLeft: 10,
+    paddingVertical: 7
   },
   formLabel: {
     marginBottom: 8,
     fontSize: 16
+  },
+  buttonsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  cancelButton: {
+    paddingVertical: 7,
+    paddingHorizontal: 16,
+    alignSelf: 'center',
+    alignItems: 'center',
+    flex: 1
+  },
+  cancelButtonText: {
+    color: colors.blue,
   }
 })

@@ -20,7 +20,7 @@ class Labs {
     this.recoverFromStorage()
   }
 
-  addMarkToLab(ID, index, markID){ // возвращает предыдущее состояние лабораторной
+  addMarkToLab(ID, index, markID){
     this.getSubject(ID).marks[index] = markID
     this.saveLabsInStorage()
   }
@@ -57,6 +57,11 @@ class Labs {
 
   removeSubject(id){
     this.getSubject(id).showing = false
+    this.saveLabsInStorage()
+  }
+
+  setFavorite(id){
+    this.getSubject(id).favorite = !this.getSubject(id).favorite
     this.saveLabsInStorage()
   }
 

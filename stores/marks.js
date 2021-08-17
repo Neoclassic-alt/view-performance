@@ -1,35 +1,27 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { makeAutoObservable, toJS } from 'mobx';
+import {colors} from './../components/colors'
 
 // хранилище ярлыков
 class Marks {
     state = [
         {
             id: 1,
-            styles: {
-                backgroundColor: 'green',
-                borderWidth: 0,
-            },
+            color: colors.green,
             title: "Готово",
             active: true, // можно ли использовать для пометки лабортаорных работ (при удалении ставится в false)
             removable: false, // можно удалить (false только для "нет состояния", "в процессе" и "готово")
         },
         {
             id: 2,
-            styles: {
-                backgroundColor: 'white',
-                borderWidth: 1,
-            },
+            color: colors.lightGray,
             title: "Не готово",
             active: true,
             removable: false
         },
         {
             id: 3,
-            styles: {
-                backgroundColor: 'purple',
-                borderWidth: 0,
-            },
+            color: '#7D5DD7',
             title: "В процессе",
             active: true,
             removable: false,
@@ -59,7 +51,7 @@ class Marks {
             if (id && marks[i].id == id){
                 return marks[i]
             }
-            if (id === "" && marks[i].id == 2){
+            if ((id === "" || id === 0) && marks[i].id == 2){
                 return marks[i]
             }
         }

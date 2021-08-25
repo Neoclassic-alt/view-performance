@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { observer } from 'mobx-react-lite';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import ModalDropdown from 'react-native-modal-dropdown';
 import { Modal, ModalButton, ModalContent, ModalFooter, ModalPortal } from 'react-native-modals';
 import { colors } from '../components/colors';
@@ -9,6 +9,7 @@ import { Subject } from '../components/subject';
 import labs from './../stores/labs'
 import historyStore from './../stores/history'
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
 
 export default EditTable = observer(({ route, navigation }) => {
     const [deleteModalVisible, setDeleteModalVisible] = useState(false)
@@ -64,12 +65,30 @@ export default EditTable = observer(({ route, navigation }) => {
                     renderButtonText={text => text + "      ▼"}
                     style={styles.semestrDropDown}
                 ></ModalDropdown>}
-                <TouchableOpacity 
-                    style={[styles.button, styles.buttonGray]}
-                    onPress={() => navigation.navigate('History')}
-                >
-                    <Text>История изменений</Text>
-                </TouchableOpacity>
+                <View style={{flexDirection: 'row'}}>
+                    <TouchableOpacity 
+                        style={[styles.buttonGray, styles.rightBorder]}
+                        onPress={() => navigation.navigate('History')}
+                    >
+                        <Text>История изменений</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={styles.buttonGray}
+                        onPress={() => null}
+                    >
+                        <ModalDropdown 
+                            options={['Помощь', 'О программе']}
+                            dropdownTextStyle={{fontSize: 14}}
+                            adjustFrame={style => {
+                                style.width = 120,
+                                style.height = 85
+                                return style
+                            }}
+                        >
+                            <Text><Feather name="more-horizontal" size={24} color="black" /></Text>
+                        </ModalDropdown>
+                    </TouchableOpacity>
+                </View>
             </View>
             {labs.getVisibleSubjects().length ? <ScrollView style={{marginBottom: 20}}>
             { // сначала избранные
@@ -120,22 +139,22 @@ export default EditTable = observer(({ route, navigation }) => {
                 />
             )}
             </ScrollView> : <Text></Text>}
-            <TouchableOpacity
-                onPress={() => navigation.navigate('EditSubjectForm', { labs, historyStore })}
-                style={styles.buttonAddSubject}
-            >
-                <Text style={styles.buttonAddSubjectText}>Добавить новый предмет</Text>
-            </TouchableOpacity>
+            </SafeAreaView>
             <StatusBar />
             <ModalPortal />
-            </SafeAreaView>
+            <TouchableOpacity
+                onPress={() => navigation.navigate('EditSubjectForm', { labs, historyStore })}
+                style={[styles.buttonAddSubject, {top: useWindowDimensions().height - 100}]}
+            >
+                <Text style={styles.buttonAddSubjectText}>+</Text>
+            </TouchableOpacity>
         </View>
     );
 })
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#fff',
+        backgroundColor: colors.backgroundColor,
         flex: 1,
         paddingVertical: 10,
         paddingHorizontal: 20
@@ -146,32 +165,37 @@ const styles = StyleSheet.create({
         justifyContent: "space-between"
     },
     semestrDropDown: {
-        borderWidth: 1,
-        borderColor: colors.lightGray,
         alignSelf: 'center',
-        padding: 8
-    },
-    button: {
-        borderWidth: 1,
-        paddingHorizontal: 10,
-        padding: 7
+        padding: 8,
+        backgroundColor: '#fff'
     },
     buttonGray: {
-        borderColor: colors.lightGray
+        paddingHorizontal: 10,
+        padding: 5,
+        backgroundColor: '#fff'
+    },
+    rightBorder: {
+        borderRightWidth: 1,
+        borderRightColor: colors.backgroundGray
     },
     wrapperCustom: {
         borderRadius: 2,
         padding: 4
     },
     buttonAddSubject: {
-        borderColor: colors.blue,
-        borderWidth: 1
+        position: 'absolute',
+        right: 20,
+        backgroundColor: colors.blue,
+        borderRadius: 100,
+        alignSelf: 'flex-end',
+        width: 75,
+        height: 75,
+        justifyContent: 'center',
     },
     buttonAddSubjectText: {
-        color: colors.blue,
-        fontSize: 18,
+        color: colors.backgroundGray,
+        fontSize: 48,
         textAlign: 'center',
-        paddingVertical: 10
     },
     fulfilledTitle: {
         fontSize: 20,

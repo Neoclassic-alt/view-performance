@@ -5,6 +5,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import EditTable from './screens/edit_table';
 import EditSubjectForm from './screens/edit_subject_form';
 import History from './screens/history';
+import Help from './screens/help'
+import About from './screens/about'
 
 const Stack = createStackNavigator();
 
@@ -26,6 +28,16 @@ export default function App() {
           name="History" 
           component={History} 
           options={{title: 'История', headerShown: false}}
+        />
+        <Stack.Screen 
+          name="Help"
+          component={Help}
+          options={{title: 'Помощь', headerShown: false}}
+        />
+        <Stack.Screen 
+          name="About"
+          component={About}
+          options={{title: 'О программе', headerShown: false}}
         />
       </Stack.Navigator>
     </NavigationContainer>

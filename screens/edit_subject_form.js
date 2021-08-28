@@ -5,15 +5,12 @@ import { colors } from '../components/colors'
 import labs from './../stores/labs'
 import historyStore from './../stores/history'
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Slider from '@react-native-community/slider';
 
 export default function EditSubjectForm({ route, navigation }){
   const [title, setTitle] = useState()
-  const [numberOfLabs, setNumberOfLabs] = useState()
-
-  let numbers = []
-  for(let i = 1; i <= 12; i++){
-      numbers.push(i)
-  }
+  const [numberOfLabs, setNumberOfLabs] = useState(3)
+  const [isNameError, setNameError] = useState(false)
 
   const {subjectID} = route.params
 
@@ -22,7 +19,6 @@ export default function EditSubjectForm({ route, navigation }){
       const subject = labs.getSubject(subjectID)
       setTitle(subject?.title)
       setNumberOfLabs(subject?.marks.length)
-      navigation.setOptions({title: 'Редактировать предмет'})
     }
   }, [])
 
@@ -30,59 +26,74 @@ export default function EditSubjectForm({ route, navigation }){
     <View style={styles.container}>
       <SafeAreaView>
       <Text style={styles.formLabel}>Название предмета:</Text>
-      <TextInput
-        onChangeText={setTitle}
-        value={title}
-        style={styles.textInput}
-      />
-      <Text style={styles.formLabel}>Количество лабораторных:</Text>
-      <View style={styles.picker}>
-        <Picker
-          selectedValue={numberOfLabs}
-          onValueChange={item => {
-              setNumberOfLabs(item)
+      <View style={{marginBottom: 10}}>
+        <TextInput
+          onChangeText={(title) => {
+              setNameError(false)
+              setTitle(title)
             }
           }
-        >
-        {numbers.map((index) => 
-            <Picker.Item value={index} key={"numberOfLabs" + index} label={String(index)} />
-        )}
-        </Picker>
+          value={title}
+          style={[styles.textInput, isNameError ? styles.nameError : {}]}
+        />
+        <Text style={{color: colors.red, display: isNameError ? 'flex' : 'none'}}>Название предмета не может быть пустым</Text>
       </View>
-      <View style={styles.buttonsRow}>
+      <Text style={styles.formLabel}>Количество лабораторных:</Text>
+      <View style={styles.row}>
+        <Slider
+            minimumValue={3}
+            maximumValue={12}
+            minimumTrackTintColor={colors.blue}
+            maximumTrackTintColor={colors.lightGray}
+            style={{marginRight: 10, marginBottom: 10, flex: 1}}
+            onValueChange={setNumberOfLabs}
+            step={1}
+            value={numberOfLabs}
+        />
+        <Text>{numberOfLabs}</Text>
+      </View>
+      <View style={styles.row}>
       {!subjectID && <TouchableOpacity // если цель - добавление предмета
         onPress={() => {
-          labs.addSubject(title, numberOfLabs)
-          historyStore.addHistory("addSubject", {
-            newSubject: {
-              title,
-              countOfLabs: numberOfLabs
-            }
-          })
-          navigation.navigate("EditTable")
-        }}
-        style={styles.mainButton}
-      >
-        <Text style={styles.mainButtonText}>Создать новый предмет</Text>
-      </TouchableOpacity>}
-      {subjectID && <TouchableOpacity // если цель - изменение предмета
-        onPress={() => {
-          const {title: prevTitle, marks} = labs.getSubject(subjectID)
-          labs.editSubject(subjectID, title, numberOfLabs)
-          historyStore.addHistory("editSubject", {
-            subjectID,
-            changes: {
-              from: {
-                title: prevTitle,
-                countOfLabs: marks.length
-              },
-              to: {
+          if (title){
+            labs.addSubject(title, numberOfLabs)
+            historyStore.addHistory("addSubject", {
+              newSubject: {
                 title,
                 countOfLabs: numberOfLabs
               }
-            }
-          })
-          navigation.navigate("EditTable")
+            })
+            navigation.navigate("EditTable")
+          } else {
+            setNameError(true)
+          }
+        }}
+        style={styles.mainButton}
+      >
+        <Text style={styles.mainButtonText}>Создать предмет</Text>
+      </TouchableOpacity>}
+      {subjectID && <TouchableOpacity // если цель - изменение предмета
+        onPress={() => {
+          if (title) {
+            const {title: prevTitle, marks} = labs.getSubject(subjectID)
+            labs.editSubject(subjectID, title, numberOfLabs)
+            historyStore.addHistory("editSubject", {
+              subjectID,
+              changes: {
+                from: {
+                  title: prevTitle,
+                  countOfLabs: marks.length
+                },
+                to: {
+                  title,
+                  countOfLabs: numberOfLabs
+                }
+              }
+            })
+            navigation.navigate("EditTable")
+          } else {
+            setNameError(true)
+          }
         }}
         style={styles.mainButton}
       >
@@ -106,21 +117,18 @@ const styles = StyleSheet.create({
   },
   picker: {
     color: colors.blue,
-    width: 100,
-    borderWidth: 1,
-    marginBottom: 10
+    marginBottom: 10,
   },
   mainButton: {
-    backgroundColor: colors.blue,
-    borderRadius: 5,
+    borderColor: colors.blue,
+    borderWidth: 1,
     paddingVertical: 10,
     paddingHorizontal: 16,
     marginRight: 10,
     flex: 3
   },
   mainButtonText: {
-    fontWeight: "700",
-    color: "white",
+    color: colors.blue,
     textAlign: 'center',
     fontSize: 16,
   },
@@ -134,7 +142,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontSize: 16
   },
-  buttonsRow: {
+  row: {
     flexDirection: 'row',
     justifyContent: 'space-between'
   },
@@ -147,5 +155,9 @@ const styles = StyleSheet.create({
   },
   cancelButtonText: {
     color: colors.blue,
+  },
+  nameError: {
+    borderWidth: 1, 
+    borderColor: colors.red
   }
 })

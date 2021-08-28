@@ -73,7 +73,7 @@ export default EditTable = observer(({ route, navigation }) => {
                         <Text>История изменений</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
-                        style={styles.buttonGray}
+                        style={[styles.buttonGray, {paddingVertical: 7}]}
                         onPress={() => null}
                     >
                         <ModalDropdown 
@@ -83,6 +83,15 @@ export default EditTable = observer(({ route, navigation }) => {
                                 style.width = 120,
                                 style.height = 85
                                 return style
+                            }}
+                            renderSeparator={() => null}
+                            onSelect={(_, value) => {
+                                if (value == "Помощь"){
+                                    navigation.navigate("Help")
+                                }
+                                if (value == "О программе"){
+                                    navigation.navigate("About")
+                                }
                             }}
                         >
                             <Text><Feather name="more-horizontal" size={24} color="black" /></Text>
@@ -156,8 +165,8 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: colors.backgroundColor,
         flex: 1,
-        paddingVertical: 10,
-        paddingHorizontal: 20
+        paddingVertical: 8,
+        paddingHorizontal: 15
     },
     header: {
         paddingVertical: 6,
@@ -167,16 +176,17 @@ const styles = StyleSheet.create({
     semestrDropDown: {
         alignSelf: 'center',
         padding: 8,
+        paddingVertical: 11,
         backgroundColor: '#fff'
     },
     buttonGray: {
-        paddingHorizontal: 10,
-        padding: 5,
-        backgroundColor: '#fff'
+        padding: 10,
+        backgroundColor: '#fff',
+        alignSelf: 'center',
     },
     rightBorder: {
-        borderRightWidth: 1,
-        borderRightColor: colors.backgroundGray
+        borderRightWidth: 2,
+        borderRightColor: colors.backgroundGray,
     },
     wrapperCustom: {
         borderRadius: 2,
@@ -184,7 +194,7 @@ const styles = StyleSheet.create({
     },
     buttonAddSubject: {
         position: 'absolute',
-        right: 20,
+        right: 15,
         backgroundColor: colors.blue,
         borderRadius: 100,
         alignSelf: 'flex-end',
@@ -196,6 +206,8 @@ const styles = StyleSheet.create({
         color: colors.backgroundGray,
         fontSize: 48,
         textAlign: 'center',
+        position: 'relative',
+        bottom: 2
     },
     fulfilledTitle: {
         fontSize: 20,

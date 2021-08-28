@@ -4,7 +4,8 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-nati
 import { Modal, ModalButton, ModalContent, ModalFooter, ModalPortal } from 'react-native-modals';
 import { colors } from '../components/colors';
 import { AntDesign } from '@expo/vector-icons';
-import { MaterialIcons } from '@expo/vector-icons'; 
+import { MaterialIcons } from '@expo/vector-icons';
+import ModalDropdown from 'react-native-modal-dropdown';
 import labs from './../stores/labs'
 import marks from './../stores/marks'
 import history from '../stores/history';
@@ -49,12 +50,32 @@ export default History = observer(({navigation}) => {
       <View style={styles.historyButtonsTop}>
         <TouchableOpacity 
             style={styles.buttonGray}
-            onPress={() => navigation.navigate('EditTable')}
+            onPress={() => navigation.goBack()}
         >
             <Text style={{fontSize: 13}}>Вернуться к редактированию таблицы</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
-          <Text style={styles.clearHistoryButtonText}><MaterialIcons name="delete" size={24} color={colors.lightGray} /></Text>
+        <TouchableOpacity onPress={() => null}>
+          <ModalDropdown 
+              options={['За сегодняшний день', 'За всё время']}
+              dropdownTextStyle={{fontSize: 14}}
+              adjustFrame={style => {
+                  style.width = 160,
+                  style.height = 85
+                  return style
+              }}
+              renderSeparator={() => null}
+              onSelect={(_, value) => {
+                if (value == "За сегодняшний день"){
+                  history.clearToday()
+                }
+                if (value == "За всё время"){
+                  setModalVisible(true)
+                }
+                return false
+              }}
+          >
+              <Text style={styles.clearHistoryButtonText}><MaterialIcons name="delete" size={24} color={colors.lightGray} /></Text>
+          </ModalDropdown>
         </TouchableOpacity>
       </View>
       <ScrollView style={{marginTop: 20}}>

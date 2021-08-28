@@ -15,8 +15,8 @@ export const Subject = observer(({title, favorite, fulfilled, labsState, id,
 
     return (
         <View style={styles.subjectShadow} key={id}>
-            <Pressable style={[styles.subject, fulfilled ? styles.fulfilledSubject : styles.commonSubject]} onPress={() => setOpened(!isOpened)}>
-                <View style={styles.outer}>
+            <View style={[styles.subject, fulfilled ? styles.fulfilledSubject : styles.commonSubject]}>
+                <Pressable style={styles.outer} onPress={() => setOpened(!isOpened)}>
                     <View style={styles.menu}>
                         <Text style={{fontSize: 20, flexShrink: 1}}>{title}</Text>
                         {!fulfilled && <Pressable onPress={() => {labs.setFavorite(id)}} style={{marginLeft: 10}}>
@@ -62,7 +62,10 @@ export const Subject = observer(({title, favorite, fulfilled, labsState, id,
                     {!fulfilled && <View style={{display: isOpened ? 'none' : 'flex', alignItems: 'center'}}>
                         <Text><MaterialIcons name="expand-more" size={18} color={colors.lightGray}/></Text>
                     </View>}
-                </View>
+                    {isOpened && <View style={{alignItems: 'center'}}>
+                        <Text><MaterialIcons name="expand-less" size={18} color={colors.lightGray}/></Text>
+                    </View>}
+                </Pressable>
                 <View style={{display: isOpened ? 'flex' : 'none'}}>
                     <Text style={{marginVertical: 10}}>Статус лабораторных:</Text>
                     {labsState.map((item, index) => (
@@ -95,7 +98,8 @@ export const Subject = observer(({title, favorite, fulfilled, labsState, id,
                                     const title = marks.getMark(id).title
                                     return title + " ".repeat(38 - title.length*2) + "▼"
                                 }}
-                                renderRow={id => <Text style={{marginVertical: 10, marginLeft: 10}}>{marks.getMark(id).title}</Text>}
+                                renderRow={id => <Text style={styles.dropdownText}>{marks.getMark(id).title}</Text>}
+                                renderSeparator={() => null}
                             />
                         </View>
                     ))}
@@ -113,11 +117,8 @@ export const Subject = observer(({title, favorite, fulfilled, labsState, id,
                             <Text style={styles.buttonDeleteSubjectText}>Удалить</Text>
                         </TouchableOpacity>
                     </View>
-                    <View style={{alignItems: 'center'}}>
-                        <Text><MaterialIcons name="expand-less" size={18} color={colors.lightGray}/></Text>
-                    </View>
                 </View>
-            </Pressable>
+            </View>
         </View>
     )
 })
@@ -137,10 +138,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff'
     },
     commonSubject: {
-        borderColor: colors.superLightGray
+        borderWidth: 0
     },
     fulfilledSubject: {
-        borderColor: colors.green
+        borderColor: colors.green,
+        backgroundColor: '#F4FDF6'
     },
     progress: {
         flexDirection: "row",
@@ -150,7 +152,7 @@ const styles = StyleSheet.create({
     progressbar: {
         justifyContent: 'space-between',
         flexDirection: 'row',
-        marginTop: 10,
+        marginTop: 12,
         marginRight: 10,
         flex: 1
     },
@@ -187,6 +189,11 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
         fontSize: 14
     },
+    dropdownText: {
+        marginVertical: 10, 
+        marginLeft: 10, color: 
+        colors.gray
+    },
     systemButtons: {
         flexDirection: 'row',
         justifyContent: 'center',
@@ -198,7 +205,7 @@ const styles = StyleSheet.create({
         borderColor: colors.blue,
         paddingVertical: 7,
         paddingHorizontal: 16,
-        marginRight: 16
+        marginRight: 16,
     },
     buttonEditSubjectText: {
         color: colors.blue
@@ -207,7 +214,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: colors.red,
         paddingVertical: 7,
-        paddingHorizontal: 16
+        paddingHorizontal: 16,
     },
     buttonDeleteSubjectText: {
         color: colors.red

@@ -67,27 +67,26 @@ class History {
     ]*/
     state = []
 
-   constructor(){
+    constructor(){
        makeAutoObservable(this)
        this.recoverFromStorage()
-   }
+    }
 
-   addHistory(action, data, date){
+    dateNow(){
+        const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"]
+        let date = new Date()
+        return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`
+    }
+
+    addHistory(action, data, date){
        const currentData = {
            id: uuidv4(),
            action,
            ...data
        }
        if (!date){
-           const months = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"]
-           date = new Date()
-           date = `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`
+           date = this.dateNow()
        }
-       /*if (this.state[date]){
-           this.state[date].push(currentData)
-       } else {
-           this.state[date] = [currentData]
-       }*/
        if (this.state.some(day => day.date == date)){
         this.state.find(day => day.date == date).actions.push(currentData)
        } else {
@@ -98,28 +97,33 @@ class History {
        }
 
        this.saveHistoryInStorage()
-   }
+    }
 
-   clearHistory() {
-       this.state = []
-       this.saveHistoryInStorage()
-   }
+    clearHistory() {
+        this.state = []
+        this.saveHistoryInStorage()
+    }
 
-   setHistory(state){
-       this.state = state
-   }
+    clearToday() {
+        this.state = this.state.filter(dateBlock => dateBlock.date != this.dateNow())
+        this.saveHistoryInStorage()
+    }
 
-   saveHistoryInStorage(){
-       AsyncStorage.setItem('history', JSON.stringify(this.state))
-   }
+    setHistory(state){
+        this.state = state
+    }
 
-   recoverFromStorage(){
-       AsyncStorage.getItem('history').then(result => {
-           if (result != null){
-                this.setHistory(JSON.parse(result))
-           }
-       })
-   }
+    saveHistoryInStorage(){
+        AsyncStorage.setItem('history', JSON.stringify(this.state))
+    }
+
+    recoverFromStorage(){
+        AsyncStorage.getItem('history').then(result => {
+            if (result != null){
+                    this.setHistory(JSON.parse(result))
+            }
+        })
+    }
 }
 
 export default new History()

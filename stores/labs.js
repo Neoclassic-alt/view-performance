@@ -17,6 +17,7 @@ class Labs {
       getSubject: false,
       getVisibleSubjects: false
     })
+    this.clearStorage()
     this.recoverFromStorage()
   }
 

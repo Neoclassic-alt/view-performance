@@ -13,11 +13,11 @@ class Marks {
             removable: false, // можно удалить (false только для "нет состояния", "в процессе" и "готово")
         },
         {
-            id: 2,
-            color: colors.lightGray,
-            title: "Не готово",
+            id: 4,
+            color: '#F8D456',
+            title: "Пишу отчёт",
             active: true,
-            removable: false
+            removable: false,
         },
         {
             id: 3,
@@ -26,6 +26,13 @@ class Marks {
             active: true,
             removable: false,
         },
+        {
+            id: 2,
+            color: colors.lightGray,
+            title: "Не готово",
+            active: true,
+            removable: false
+        }
     ]
     recoveryState = "pending"
 

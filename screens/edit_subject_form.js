@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { View, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native'
-import { Picker } from '@react-native-picker/picker'
 import { colors } from '../components/colors'
 import labs from './../stores/labs'
 import historyStore from './../stores/history'

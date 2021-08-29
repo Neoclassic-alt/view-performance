@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "lab-view",
-    "slug": "view-performance",
-    "version": "0.3",
+    "name": "Lab Manager",
+    "slug": "lab-manager",
+    "version": "0.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "splash": {
@@ -24,7 +24,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.neoclassic.viewperformance"
+      "package": "com.neoclassic.labmanager"
     },
     "web": {
       "favicon": "./assets/favicon.png"
